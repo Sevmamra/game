@@ -8,7 +8,7 @@ body {
 }
 canvas {
   border: 5px solid #ecf0f1;
-  border-radius: 20px; /* Rounded corners */
+  border-radius: 20px;
   background: linear-gradient(to bottom, #87ceeb 0%, #87ceeb 70%, #95a5a6 70%, #95a5a6 100%);
   box-shadow: 0 0 30px #ecf0f1;
 }
