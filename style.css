@@ -1,14 +1,17 @@
 body {
   margin: 0;
-  background: #2c3e50;
+  background: linear-gradient(to bottom, #74b9ff, #dfe6e9);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
+
 canvas {
-  border: 6px solid #ecf0f1;
-  border-radius: 20px;
-  background: linear-gradient(to bottom, #87ceeb 0%, #87ceeb 70%, #95a5a6 70%, #95a5a6 100%);
-  box-shadow: 0 0 40px #ecf0f1;
+  width: 960px;
+  height: 380px;
+  background: linear-gradient(to bottom, #a29bfe, #dfe6e9);
+  border: 6px solid #2d3436;
+  border-radius: 30px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
 }
