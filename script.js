@@ -9,139 +9,183 @@ let speed = 5, gameOverFlag = false;
 let obstacleTimer = 0, coinTimer = 0;
 let stars = 0, jumps = 0;
 
-const player = { x: 60, y: 270, vy: 0, gravity: 0.7, jump: -14, jumpsLeft: 2, legStep: 0 };
+const player = {
+  x: 80,
+  y: 310,
+  vy: 0,
+  gravity: 0.7,
+  jump: -15,
+  jumpsLeft: 2,
+  legStep: 0
+};
+
 const obstacles = [], coins = [];
 
-function drawPlayer(){
-  ctx.save();
-  ctx.translate(player.x, player.y);
-  ctx.textAlign = 'center';
-  const emoji = player.legStep % 20 < 10 ? '🏃' : '🏃‍♂️';
-  ctx.font = '40px serif';
-  ctx.fillText(emoji, 0, -10);
-  ctx.restore();
+function drawPlayer() {
+  const size = 60;
+  const legOffset = player.legStep % 20 < 10 ? 10 : -10;
+  
+  // Body
+  ctx.fillStyle = '#00b894';
+  ctx.beginPath();
+  ctx.arc(player.x, player.y - size / 2, size / 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Face details (eyes)
+  ctx.fillStyle = '#2d3436';
+  ctx.beginPath();
+  ctx.arc(player.x + size * 0.15, player.y - size * 0.6, 6, 0, Math.PI * 2);
+  ctx.arc(player.x + size * 0.35, player.y - size * 0.6, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Legs
+  ctx.strokeStyle = '#2d3436';
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(player.x - size * 0.2, player.y);
+  ctx.lineTo(player.x - size * 0.2 + legOffset, player.y + size * 0.3);
+  ctx.moveTo(player.x + size * 0.2, player.y);
+  ctx.lineTo(player.x + size * 0.2 - legOffset, player.y + size * 0.3);
+  ctx.stroke();
 }
 
-function drawObstacle(o){
-  ctx.fillStyle = '#e74c3c';
+function drawObstacle(o) {
+  ctx.fillStyle = '#d63031';
   ctx.fillRect(o.x, o.y, o.w, o.h);
 }
 
-function drawCoin(c){
-  ctx.fillStyle = '#f1c40f';
+function drawCoin(c) {
+  ctx.fillStyle = '#ffeaa7';
   ctx.beginPath();
-  ctx.arc(c.x, c.y, 8, 0, 2*Math.PI);
+  ctx.arc(c.x, c.y, 12, 0, 2 * Math.PI);
   ctx.fill();
 }
 
-function drawGround(){
-  ctx.fillStyle = '#2ecc71';
-  ctx.fillRect(0, 310, canvas.width, 10);
+function drawGround() {
+  ctx.fillStyle = '#0984e3';
+  ctx.fillRect(0, 350, canvas.width, 20);
 }
 
-function drawHUD(){
-  ctx.fillStyle = '#fff';
-  ctx.font = '18px sans-serif';
+function drawHUD() {
+  ctx.fillStyle = '#2d3436';
+  ctx.font = '20px Arial';
   ctx.fillText(`Stars: ${stars}`, 20, 30);
-  ctx.fillText(`Jumps: ${jumps}`, 20, 55);
-  ctx.fillText(`Score: ${Math.floor(score)}`, 700, 30);
-  ctx.fillText(`High: ${highScore}`, 700, 55);
+  ctx.fillText(`Jumps: ${jumps}`, 20, 60);
+  ctx.fillText(`Score: ${Math.floor(score)}`, 800, 30);
+  ctx.fillText(`High: ${highScore}`, 800, 60);
 }
 
-function collide(o){
-  const dx = Math.abs(player.x - (o.x + o.w/2));
-  const dy = Math.abs(player.y - (o.y + o.h/2));
-  return dx < 20 + o.w/2 && dy < 25 + o.h/2;
+function collide(o) {
+  const dx = Math.abs(player.x - (o.x + o.w / 2));
+  const dy = Math.abs(player.y - (o.y + o.h / 2));
+  return dx < 30 + o.w / 2 && dy < 30 + o.h / 2;
 }
 
-function coinCollect(c){
+function coinCollect(c) {
   const dx = player.x - c.x;
   const dy = player.y - c.y;
-  return Math.hypot(dx, dy) < 25 + 8;
+  return Math.hypot(dx, dy) < 30 + 12;
 }
 
-function reset(){
-  gameOverFlag = false; score = 0; speed = 5;
+function reset() {
+  gameOverFlag = false;
+  score = 0;
+  speed = 5;
   obstacles.length = coins.length = 0;
-  player.y = 270; player.vy = 0; player.jumpsLeft = 2; player.legStep = 0;
+  player.y = 310;
+  player.vy = 0;
+  player.jumpsLeft = 2;
+  player.legStep = 0;
   stars = jumps = 0;
   animate();
 }
 
-function showGameOver(){
-  ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = '#ecf0f1';
-  ctx.font = 'bold 40px sans-serif';
-  ctx.fillText('GAME OVER', 300, 160);
-  ctx.font = '20px sans-serif';
-  ctx.fillText(`Score: ${Math.floor(score)}`, 380, 200);
-  ctx.fillText(`High Score: ${highScore}`, 360, 230);
+function showGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.8)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#dfe6e9';
+  ctx.font = 'bold 48px Arial';
+  ctx.fillText('GAME OVER', canvas.width / 2 - 150, canvas.height / 2 - 40);
+  ctx.font = '24px Arial';
+  ctx.fillText(`Score: ${Math.floor(score)}`, canvas.width / 2 - 70, canvas.height / 2);
+  ctx.fillText(`High Score: ${highScore}`, canvas.width / 2 - 90, canvas.height / 2 + 40);
 
-  ctx.fillStyle = '#27ae60';
-  ctx.fillRect(350, 250, 200, 40);
-  ctx.fillStyle = '#fff';
-  ctx.fillText('🔁 Replay', 450, 278);
+  // Replay button
+  const btnW = 200, btnH = 50;
+  const btnX = canvas.width / 2 - btnW / 2;
+  const btnY = canvas.height / 2 + 80;
+  ctx.fillStyle = '#00b894';
+  ctx.fillRect(btnX, btnY, btnW, btnH);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '28px Arial';
+  ctx.fillText('REPLAY', canvas.width / 2 - 45, btnY + 34);
 
   canvas.addEventListener('click', handleReplay, { once: true });
 }
 
-function handleReplay(e){
-  const {offsetX: x, offsetY: y} = e;
-  if(x>=350&&x<=550&&y>=250&&y<=290) reset();
+function handleReplay(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const btnX = canvas.width / 2 - 100;
+  const btnY = canvas.height / 2 + 80;
+  if (x >= btnX && x <= btnX + 200 && y >= btnY && y <= btnY + 50) reset();
 }
 
-function animate(){
-  if(gameOverFlag) return showGameOver();
+function animate() {
+  if (gameOverFlag) return showGameOver();
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   player.vy += player.gravity;
   player.y += player.vy;
-  if(player.y > 270){
-    player.y = 270;
+  if (player.y > 310) {
+    player.y = 310;
     player.vy = 0;
     player.jumpsLeft = 2;
   }
 
+  player.legStep++;
+
   drawGround();
   drawPlayer();
-  player.legStep++;
 
   obstacleTimer++;
   coinTimer++;
-  if(obstacleTimer > 70){
-    const h = Math.random()*50 + 20;
-    const w = Math.random()*40 + 20;
-    obstacles.push({ x: canvas.width, y: 310 - h, w, h });
+  
+  if (obstacleTimer > 90) {
+    const h = Math.random() * 100 + 40;
+    const w = Math.random() * 80 + 40;
+    obstacles.push({ x: canvas.width, y: 370 - h, w, h });
     obstacleTimer = 0;
   }
-  if(coinTimer > 120){
-    coins.push({ x: canvas.width, y: Math.random()*150+150 });
+  if (coinTimer > 140) {
+    coins.push({ x: canvas.width, y: Math.random() * 150 + 180 });
     coinTimer = 0;
   }
 
-  obstacles.forEach((o,i)=>{
+  obstacles.forEach((o, i) => {
     o.x -= speed;
     drawObstacle(o);
-    if(collide(o)) gameOver();
-    if(o.x + o.w < 0){ obstacles.splice(i,1); score += 5; }
+    if (collide(o)) gameOver();
+    if (o.x + o.w < 0) { obstacles.splice(i, 1); score += 5; }
   });
 
-  coins.forEach((c,i)=>{
+  coins.forEach((c, i) => {
     c.x -= speed;
     drawCoin(c);
-    if(coinCollect(c)){ coins.splice(i,1); stars++; score += 10; }
+    if (coinCollect(c)) { coins.splice(i, 1); stars++; score += 10; }
   });
 
-  score += 0.08;
+  score += 0.1;
   speed += 0.0003 * score;
 
   drawHUD();
   requestAnimationFrame(animate);
 }
 
-function jump(){
-  if(player.jumpsLeft > 0){
+function jump() {
+  if (player.jumpsLeft > 0) {
     player.vy = player.jump;
     player.jumpsLeft--;
     jumps++;
@@ -149,14 +193,14 @@ function jump(){
   }
 }
 
-function gameOver(){
+function gameOver() {
   gameOverFlag = true;
   highScore = Math.max(highScore, Math.floor(score));
   localStorage.setItem('ultimateHigh', highScore);
   overSound.play();
 }
 
-document.addEventListener('keydown', e=>{ if(e.code==='Space') jump(); });
+document.addEventListener('keydown', e => { if (e.code === 'Space') jump(); });
 canvas.addEventListener('click', jump);
 
 animate();
